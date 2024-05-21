@@ -148,6 +148,7 @@ namespace aoc
         {
             for (auto &&word : splitString(line, ' '))
             {
+                #pragma warning(suppress : 4996) // supress sscanf warning, this is fine.
                 if (int num = 0; std::sscanf(word.c_str(), "%d", &num))
                     input.back().emplace_back(num);
                 else
