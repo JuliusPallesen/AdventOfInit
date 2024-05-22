@@ -16,6 +16,7 @@
 #include <ranges>
 #include <concepts>
 #include <queue>
+#include <numeric>
 
 namespace aoc
 {
@@ -23,26 +24,6 @@ namespace aoc
     Commonn string parsing Tasks
     */
     const std::vector<std::string> DIGIT_STRINGS = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
-
-    std::vector<std::string> splitString(const std::string &input_str, const char split_char = ' ', bool allow_empty = false)
-    {
-        std::vector<std::string> split_string;
-        for (auto &&ch : input_str)
-        {
-            if (ch == split_char)
-            {
-                if (allow_empty || (!split_string.empty() && !split_string.back().empty()))
-                    split_string.emplace_back("");
-            }
-            else
-            {
-                if (split_string.empty())
-                    split_string.emplace_back("");
-                split_string.back().push_back(ch);
-            }
-        }
-        return split_string;
-    }
 
     std::vector<std::string> splitString(const std::string &input_str, const std::string &split_by_any, bool allow_empty = false)
     {
@@ -62,6 +43,11 @@ namespace aoc
             }
         }
         return split_string;
+    }
+
+    std::vector<std::string> splitString(const std::string &input_str, const char split_char = ' ', bool allow_empty = false)
+    {
+        return splitString(input_str, std::string(1, split_char), allow_empty);
     }
 
     /*Could be a lot more efficient without substringing*/
@@ -86,29 +72,24 @@ namespace aoc
         return split_string;
     }
 
-    /*merge and template these?*/
-    std::string joinString(const std::vector<std::string> &input, const char join_char = '\0')
-    {
-        std::string str;
-        for (auto &&s : input)
-        {
-            str += s;
-            if (join_char != '\0' && &s != &input.back())
-                str += join_char;
-        }
-        return str;
-    }
-
     std::string joinString(const std::vector<std::string> &input, const std::string &join_string)
     {
-        std::string str;
-        for (auto &&s : input)
-        {
-            str += s;
-            if (&s != &input.back())
-                str += join_string;
-        }
-        return str;
+        if (input.empty())
+            return "";
+        return std::accumulate(input.begin() + 1, input.end(), input[0], [&join_string](const auto &acc, const auto &substr)
+                               { return acc + join_string + substr; });
+    }
+
+    std::string joinString(const std::vector<std::string> &input, const char join_char = '\0')
+    {
+        if (join_char != '\0')
+            return joinString(input, std::string(1, join_char));
+
+        if (input.empty())
+            return "";
+
+        return std::accumulate(input.begin() + 1, input.end(), input[0], [](const auto &acc, const auto &substr)
+                               { return acc + substr; });
     }
 
     /*
@@ -148,7 +129,7 @@ namespace aoc
         {
             for (auto &&word : splitString(line, ' '))
             {
-                #pragma warning(suppress : 4996) // supress sscanf warning, this is fine.
+#pragma warning(suppress : 4996) // supress sscanf warning, this is fine.
                 if (int num = 0; std::sscanf(word.c_str(), "%d", &num))
                     input.back().emplace_back(num);
                 else
@@ -158,10 +139,10 @@ namespace aoc
         }
         return input;
     }
+
     /*
     Common operations on 2D grids for AoC Tasks
     */
-
     struct Position2D
     {
         int y, x;
@@ -228,6 +209,8 @@ namespace aoc
             return "No direction";
         }
     }
+
+    std::ostream &operator<<(std::ostream &out, const Directions &dir) { return out << printDirection(dir); }
 
     Directions getDirFromCharNESW(const char ch)
     {
@@ -314,8 +297,7 @@ namespace aoc
     };
 
     /*
-    - Finding Items inside of 2D grids
-    - Finding Paths inside of 2D grids
+    Common functionality for 2D grids
     */
     struct DijkstraState
     {
@@ -333,14 +315,21 @@ namespace aoc
         bool operator()(const DijkstraState &lhs, const DijkstraState &rhs) { return lhs.length > rhs.length; }
     };
 
+    // Doesn't for for std::vector<bool>. Probably because its template overloaded to work with integers and bitmasks
     template <TwoDimensionalContainer T>
     std::optional<Position2D> find2D(const T &vec2d, const typename T::value_type::value_type &item)
     {
-        for (int y = 0; y < static_cast<int>(vec2d.size()); ++y)
-            for (int x = 0; x < static_cast<int>(vec2d.at(y).size()); ++x)
-                if (vec2d[y][x] == item)
-                    return Position2D{y, x};
-        return std::nullopt;
+        // clang-format off
+        auto xPos = decltype(vec2d[0].begin()){};
+        const auto yPos = std::ranges::find_if(vec2d, [&xPos, &item](const auto & vec){
+            xPos = std::ranges::find(vec, item);
+            return xPos != vec.end();
+        });
+        return (yPos == vec2d.end()) ? std::optional<Position2D>() : Position2D(
+            static_cast<int>(std::distance(vec2d.begin(), yPos)),
+            static_cast<int>(std::distance(yPos->begin(), xPos)) // yPos points to start of vector that contains xPos
+        );
+        //clang-format on
     }
 
     template <TwoDimensionalContainer T>
@@ -355,11 +344,8 @@ namespace aoc
         for (auto &&delta : neighbour_deltas)
         {
             const auto new_pos = pos + delta;
-            if (isInBounds2D(vec2d, new_pos) &&
-                rule(new_pos))
-            {
+            if (isInBounds2D(vec2d, new_pos) && rule(new_pos))
                 neighbours.emplace_back(std::move(new_pos));
-            }
         }
         return neighbours;
     }
