@@ -17,6 +17,7 @@
 #include <concepts>
 #include <queue>
 #include <numeric>
+#include <cstdio>
 
 namespace aoc
 {
@@ -129,11 +130,13 @@ namespace aoc
         {
             for (auto &&word : splitString(line, ' '))
             {
+#pragma warning(push)
 #pragma warning(suppress : 4996) // supress sscanf warning, this is fine.
                 if (int num = 0; std::sscanf(word.c_str(), "%d", &num))
                     input.back().emplace_back(num);
                 else
                     input.back().emplace_back(std::move(word));
+#pragma warning(pop)
             }
             input.push_back(std::vector<std::variant<int, std::string>>());
         }

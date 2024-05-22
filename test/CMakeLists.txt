@@ -12,10 +12,10 @@ SET(MyTests
 )
 
 foreach(test IN LISTS MyTests)
-  add_executable(${test} ${test}.cpp ../src/aocutils.h)
-  target_link_libraries(${test} GTest::gtest)
+  add_executable(${test} ${test}.cpp )
+  target_link_libraries(${test} GTest::gtest_main)
   string(REPLACE "_test" "" name ${test})
-  add_test(${name} ${test})
+  add_test(NAME ${name} COMMAND ${test})
 endforeach()
 
 
