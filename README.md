@@ -19,6 +19,12 @@ You can template filenames by using @YEAR@ and @DAY@ which AdventOfInit will rep
 `--cookie <string>` -> cookie or filename containing the cookie (defaults to ./session.txt)  
 
 # How to Build
+## Build requirements
+- CMake
+- Conan
+- A C++ compiler
+
+## Build steps
 Depends on Conan Package manager  
 ```
 $ conan install . --output_folder=build --build=missing
@@ -26,6 +32,9 @@ $ cd build
 $ cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
 $ cmake --build . --config Release
 ```
+  
+Building openssl using conan on windows (a cpr/libcurl dependency) can be a bit tricky, but it worked for me with Visual Studio Code 17 2022.
+Couldn't get it to build on windows with clang / gcc, but it worked on linux.
 
 # Releases
 Windows: https://github.com/JuliusPallesen/AdventOfInit/releases/tag/v1.0
