@@ -24,4 +24,8 @@ Depends on Conan Package manager
 $ conan install . --output_folder=build --build=missing
 $ cd build
 $ cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake"
-$ cmake --build . --config Release```
+$ cmake --build . --config Release
+```
+
+# Releases
+Windows: https://github.com/JuliusPallesen/AdventOfInit/releases/tag/v1.0
