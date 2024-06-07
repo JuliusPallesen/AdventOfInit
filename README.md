@@ -1,5 +1,6 @@
 # Advent of Init
-A C++ CLI tool that lets you initialize Advent of Code Puzzles. This works by providing a "logged in" session cookie to the tool, which then fetches the input data from adventofcode.com, initializes a folder structure and puts it alongside an optional template provided by the user. 
+A C++ CLI tool that lets you initialize Advent of Code Puzzles. This works by providing a "logged in" session cookie to the tool, which then fetches the input data from adventofcode.com, initializes a folder structure and puts it alongside an optional template provided by the user.   
+This Project also provides a default template including a tested aocutils.h which provides common functionality for Advent of Code Puzzles. Feel free to ignore this and replace it with your own template or don't use it at all.
 
 # Usage
 ## Required
